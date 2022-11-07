@@ -1,5 +1,6 @@
 function addToCart(id, quantity, color){
     let cart = getCart()
+    console.log(cart[color])
     cart.push({id, quantity, color})
     saveCart(cart)
 }
@@ -16,15 +17,16 @@ function getCart() {
         return JSON.parse(cart);
     }
 }
-/*
+
 function removeFromCart(product) {
     let cart = getCart();
     cart = cart.filter(p=> p.id != product.id);
     saveCart(cart);
 }
 
-function changeQuantity(product, quantity) {
+function changeQuantity(product, quantity, color) {
     let cart = getCart();
+    console.log(cart)
     let foundProduct = cart.find(p => p.id == product.id);
     if (foundProduct != undefined) {
         foundProduct.quantity += quantity;
@@ -52,4 +54,4 @@ function getTotalPrice() {
         total += product.quantity * product.price
     }
     return total;
-}*/
+}
