@@ -55,7 +55,11 @@ function colorValue(){
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
 buttonAddToCart.addEventListener('click', function() {
-    addToCart(id, quantityValue(), colorValue())
+    if (quantityValue() == 0 || colorValue() == ""){
+        alert('Vous devez choisir une quantité et une couleur')
+    } else {
+            addToCart(id, quantityValue(), colorValue())
+    }
 })
 
 
