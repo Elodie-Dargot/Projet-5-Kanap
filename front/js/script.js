@@ -29,7 +29,3 @@ function extractProducts(products) {
   }
 }
 recoverProducts()
-extractProducts()
-
-
-

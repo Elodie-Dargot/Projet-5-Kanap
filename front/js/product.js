@@ -1,9 +1,9 @@
 //je récupère l'id de la page pour créer une nouvelle URL pour la requete API correspondant au produit visé
-var str = window.location.href;
-var url = new URL(str);
-var id = url.searchParams.get("id");
-var base = "http://localhost:3000/api/products/";
-var newUrl = base + id;
+let str = window.location.href;
+let url = new URL(str);
+let id = url.searchParams.get("id");
+let base = "http://localhost:3000/api/products/";
+let newUrl = base + id;
 
 // je fais ma requête à l'API pour récupérer les détails du produit
 function recoverProduct(){
@@ -45,7 +45,7 @@ function insertElements(products){
 
 //je récupère les valeurs couleurs et quantité
 function quantityValue(){
-   return document.getElementById("quantity").value
+   return Number(document.getElementById("quantity").value)
 };
 
 function colorValue(){
@@ -55,7 +55,7 @@ function colorValue(){
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
 buttonAddToCart.addEventListener('click', function() {
-addToCart(id, quantityValue(), colorValue())
+    addToCart(id, quantityValue(), colorValue())
 })
 
 

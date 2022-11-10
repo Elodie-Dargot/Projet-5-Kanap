@@ -1,8 +1,13 @@
 function addToCart(id, quantity, color){
     let cart = getCart()
-    console.log(cart[color])
-    cart.push({id, quantity, color})
-    saveCart(cart)
+    let product = {id, quantity, color}
+    if (searchForProductInCart(cart, product)){
+        changeQuantity(product, quantity)
+    } else {
+        cart.push({id, quantity, color})
+        saveCart(cart)
+    }
+    
 }
 
 function saveCart(cart) {
@@ -18,24 +23,30 @@ function getCart() {
     }
 }
 
+function searchForProductInCart(cart, product){
+    return cart.some((p) => p.id === product.id && p.color === product.color)
+}
+
+function changeQuantity(product, quantity) {
+    let cart = getCart();
+    let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
+
+    if (foundProduct != undefined) {
+        foundProduct.quantity += quantity
+
+       if (foundProduct.quantity <= 0){
+            removeFromCart(foundProduct);
+
+        } else {
+            saveCart(cart)
+        }   
+    } 
+}
+/*
 function removeFromCart(product) {
     let cart = getCart();
     cart = cart.filter(p=> p.id != product.id);
     saveCart(cart);
-}
-
-function changeQuantity(product, quantity, color) {
-    let cart = getCart();
-    console.log(cart)
-    let foundProduct = cart.find(p => p.id == product.id);
-    if (foundProduct != undefined) {
-        foundProduct.quantity += quantity;
-        if (foundProduct.quantity <= 0){
-            removeFromCart(foundProduct);
-        } else {
-            saveCart(cart)
-        }
-    } 
 }
 
 function getNumberProduct() {
@@ -54,4 +65,4 @@ function getTotalPrice() {
         total += product.quantity * product.price
     }
     return total;
-}
+}*/
