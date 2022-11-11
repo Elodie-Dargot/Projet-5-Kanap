@@ -1,30 +1,43 @@
-//afficher le panier
-
-function displayCart() {
-    let cart = getCart()
-    for (let i in cart){
-        fetch("http://localhost:3000/api/products/" + cart[i].id)
+//Je récupère les produits du panier
+function getCart() {
+    let cart = localStorage.getItem("cart");
+    if (cart == null) {
+        return [];
+    } else {
+        return JSON.parse(cart);
+    }
+} 
+//fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse
+function getProduct(id){
+    return fetch("http://localhost:3000/api/products/" + id)
         .then(function(res) {
             if (res.ok) {
                 return res.json()
             }
         })
+}
+
+//affiche les produits du panier
+function displayCart() {
+    let cart = getCart()
+    for (let i of cart){
+        getProduct(i.id)
         .then(function(value){
             let cartProduct = `
-            <article class="cart__item" data-id="${cart[i].id}" data-color="${cart[i].color}">
+            <article class="cart__item" data-id="${i.id}" data-color="${i.color}">
                 <div class="cart__item__img">
                     <img src=${value.imageUrl} alt=${value.altTxt}>
                 </div>
                 <div class="cart__item__content">
                     <div class="cart__item__content__description">
                         <h2>${value.name}</h2>
-                        <p>${cart[i].color}</p>
+                        <p>${i.color}</p>
                         <p>${value.price}€</p>
                     </div>
                     <div class="cart__item__content__settings">
                         <div class="cart__item__content__settings__quantity">
                             <p>Qté :</p>
-                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${cart[i].quantity}>
+                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${i.quantity}>
                         </div>
                         <div class="cart__item__content__settings__delete">
                             <p class="deleteItem">Supprimer</p>
@@ -36,13 +49,13 @@ function displayCart() {
             cartSection.innerHTML += cartProduct
         })
         .catch(function(err) {
-            console.log(err)
+            console.log("display cart:" + err)
           })
     }
 }
-
 displayCart()
 
+//ajoute les produits au panier
 function addToCart(id, quantity, color){
     let cart = getCart()
     let product = {id, quantity, color}
@@ -54,59 +67,38 @@ function addToCart(id, quantity, color){
     }
 }
 
+//enregistre le panier sur localStorage
 function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-function getCart() {
-    let cart = localStorage.getItem("cart");
-    if (cart == null) {
-        return [];
-    } else {
-        return JSON.parse(cart);
-    }
-}
-
+//vérifie s'il existe déjà dans le panier un produit avec le meme id et la même couleur
 function searchForProductInCart(cart, product){
     return cart.some((p) => p.id === product.id && p.color === product.color)
 }
 
+//pour changer la quantité 
 function changeQuantity(product, quantity) {
     let cart = getCart();
     let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
-
     if (foundProduct != undefined) {
         foundProduct.quantity += quantity
-
        if (foundProduct.quantity <= 0){
             removeFromCart(foundProduct);
-
         } else {
             saveCart(cart)
         }   
     } 
 }
 
-//let ItemToDeleteFromCart = document.getElementsByClassName('cart__item')
-//console.log(ItemToDeleteFromCart)
-//deleteItemFromCart.addEventListener('click', removeFromCart())
-
-
-/*let quantityOnCart = document.getElementsByClassName("itemQuantity")
-console.log(quantityOnCart)
-let changeQuantityOnCart = document.querySelector(".itemQuantity").value
-console.log(changeQuantityOnCart)
-quantityOnCart.addEventListener('change', updateValue())
-function updateValue(event){
-    changeQuantityOnCart = event.target.value
-}*/
-
+//supprime du panier
 function removeFromCart(product) {
     let cart = getCart();
     cart = cart.filter(p=> p.id != product.id);
     saveCart(cart);
 }
 
+//calcul le nombre d'articles dans le panier
 function getNumberProduct() {
     let cart = getCart();
     let number = 0;
@@ -115,20 +107,58 @@ function getNumberProduct() {
     }
     return number;
 }
-
 let totalProducts = document.getElementById("totalQuantity")
 totalProducts.innerText = getNumberProduct()
 
+//calcul le prix total
 function getTotalPrice() {
-    let cart = getCart();
-    let product = document.querySelector(".cart__item__content__description p.value")
-    console.log(product)
-    let total = 0;
+    let cart = getCart()
+    let cartProductPromises = []
     for (let product of cart) {
-        total += product.quantity * product.price
+        cartProductPromises.push(getProduct(product.id)
+        .then(function(value){
+            return product.quantity * value.price
+        }))
     }
-    return total;
+    Promise.all(cartProductPromises)
+    .then(function(results){
+        let total = results.reduce((a,b) => a + b, 0)
+        let totalPrice = document.getElementById("totalPrice")
+        totalPrice.innerText = total
+    })
+}
+getTotalPrice()
+
+function addEvents() {
+    let deleteOptions = document.querySelectorAll(".deleteItem")
+    console.log(deleteOptions)
+    deleteOptions.forEach((option) => {
+        option.addEventListener('click', function(){
+            let productToRemove = option.closest("article").getAttribute("data-id")
+            removeFromCart(productToRemove)
+        })
+    })
+
+    let quantityButtons = document.querySelectorAll(".itemQuantity")
+    console.log(quantityButtons)
+    quantityButtons.forEach((button) => {
+        button.addEventListener('change', function(){
+            let button = button.closest("article").getAttribute("data-id")
+            getNumberProduct(button.value)
+        })
+    })
+}
+addEvents()
+
+/*let quantityOnCart = document.getElementsByClassName("itemQuantity")
+console.log(quantityOnCart)
+let changeQuantityOnCart = document.querySelector(".itemQuantity").value
+console.log(changeQuantityOnCart)
+quantityOnCart.addEventListener('change', updateValue())
+function updateValue(event){
+    changeQuantityOnCart = event.target.value
 }
 
-let totalPrice = document.getElementById("totalPrice")
-totalPrice.innerText = getTotalPrice()
+let ItemToDeleteFromCart = document.getElementsByClassName('cart__item')
+console.log(ItemToDeleteFromCart)
+deleteItemFromCart.addEventListener('click', removeFromCart())*/

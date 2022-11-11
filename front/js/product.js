@@ -52,6 +52,8 @@ function colorValue(){
     return document.getElementById('colors').value
 };
 
+import {addToCart} from './cart'
+
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
 buttonAddToCart.addEventListener('click', function() {
