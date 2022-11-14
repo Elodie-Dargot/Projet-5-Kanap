@@ -129,36 +129,11 @@ function getTotalPrice() {
 }
 getTotalPrice()
 
-function addEvents() {
-    let deleteOptions = document.querySelectorAll(".deleteItem")
-    console.log(deleteOptions)
-    deleteOptions.forEach((option) => {
-        option.addEventListener('click', function(){
-            let productToRemove = option.closest("article").getAttribute("data-id")
-            removeFromCart(productToRemove)
-        })
-    })
-
-    let quantityButtons = document.querySelectorAll(".itemQuantity")
-    console.log(quantityButtons)
-    quantityButtons.forEach((button) => {
-        button.addEventListener('change', function(){
-            let button = button.closest("article").getAttribute("data-id")
-            getNumberProduct(button.value)
-        })
-    })
+/*function buttonChangeQuantityOnCartPage(){
+    let allButtonQuantity = [document.getElementsByClassName("itemQuantity")]
+    for (let btn in allButtonQuantity) {
+        console.log(btn.value)
+    }
 }
-addEvents()
-
-/*let quantityOnCart = document.getElementsByClassName("itemQuantity")
-console.log(quantityOnCart)
-let changeQuantityOnCart = document.querySelector(".itemQuantity").value
-console.log(changeQuantityOnCart)
-quantityOnCart.addEventListener('change', updateValue())
-function updateValue(event){
-    changeQuantityOnCart = event.target.value
-}
-
-let ItemToDeleteFromCart = document.getElementsByClassName('cart__item')
-console.log(ItemToDeleteFromCart)
-deleteItemFromCart.addEventListener('click', removeFromCart())*/
+    
+buttonChangeQuantityOnCartPage()*/
