@@ -105,10 +105,10 @@ function getNumberProduct() {
     for (let product of cart) {
         number += product.quantity;
     }
-    return number;
+    let totalProducts = document.getElementById("totalQuantity")
+    totalProducts.innerText = number
 }
-let totalProducts = document.getElementById("totalQuantity")
-totalProducts.innerText = getNumberProduct()
+getNumberProduct()
 
 //calcul le prix total
 function getTotalPrice() {
@@ -129,11 +129,48 @@ function getTotalPrice() {
 }
 getTotalPrice()
 
-/*function buttonChangeQuantityOnCartPage(){
-    let allButtonQuantity = [document.getElementsByClassName("itemQuantity")]
-    for (let btn in allButtonQuantity) {
-        console.log(btn.value)
+function buttonChangeQuantityOnCartPage(){
+    let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity"))
+    let cart = getCart()
+    for (let btn of allButtonQuantity) {
+            let productToChange = btn.closest(".cart__item")
+            let productToChangeId = productToChange.dataset.id
+            let productToChangeColor = productToChange.dataset.color
+        
+            btn.addEventListener('change', function(){
+                let newQuantity = Number(btn.value)
+                console.log(newQuantity)
+                let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor)
+                console.log(foundProduct)
+                foundProduct.quantity = newQuantity
+                saveCart(cart)
+                getNumberProduct()
+                getTotalPrice()
+        })
     }
 }
-    
-buttonChangeQuantityOnCartPage()*/
+
+function buttonDeleteItemOnCartPage(){
+    let allButtonDelete = Array.from(document.getElementsByClassName("deleteItem"))
+    let cart = getCart()
+    for (let btn of allButtonDelete) {
+            let productToChange = btn.closest(".cart__item")
+            let productToChangeId = productToChange.dataset.id
+            let productToChangeColor = productToChange.dataset.color
+        
+            btn.addEventListener('click', function(){
+                let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor)
+                cart = cart.filter(p=> p != foundProduct);
+                saveCart(cart);
+                getNumberProduct()
+                getTotalPrice()
+                productToChange.remove()
+        })
+    }
+}
+//pour appeler ma fonction une fois que toute la page est chargée 
+window.addEventListener('load', (event) => {
+    console.log('page is fully loaded')
+    buttonChangeQuantityOnCartPage()
+    buttonDeleteItemOnCartPage()
+  })
