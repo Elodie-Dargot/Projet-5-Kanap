@@ -54,15 +54,35 @@ function colorValue(){
 
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
+let alertZone = document.querySelector('.item__content__addButton')
 buttonAddToCart.addEventListener('click', function() {
-    if (quantityValue() == 0 || colorValue() == ""){
-        alert('Vous devez choisir une quantité et une couleur')
-    } else {
-            addToCart(id, quantityValue(), colorValue())
-            alert("Votre produit à été ajouté au panier")
+    if (quantityValue() == 0 && colorValue() == ""){
+        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une quantité et une couleur</div>`)
+        deleteAlert()
+    } else if (quantityValue() == 0) {
+        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une quantité</div>`)
+        deleteAlert()
+    }
+    else if (colorValue() == ""){
+        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une couleur</div>`)
+        deleteAlert()
+    } else if (quantityValue() <= 0 || quantityValue() > 100) {
+        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>La quantité doit être comprise entre 1 et 100</div>`)
+        deleteAlert()
+    }
+    else {
+        addToCart(id, quantityValue(), colorValue())
+        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold"><br>Produit ajouté au panier</div>`)
+        deleteAlert()
     }
 })
 
+function deleteAlert(){
+    let alert = document.getElementById("alert")
+    setTimeout(function(){
+        alert.remove()
+    }, 1500)
+}
 
 
 
