@@ -9,7 +9,8 @@ function getCart() {
         return JSON.parse(cart);
     }
 } 
-//fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse de la fiche produit
+
+//fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse de la requête pour le produit
 function getProduct(id){
     return fetch("http://localhost:3000/api/products/" + id)
         .then(function(res) {
@@ -141,16 +142,17 @@ function getTotalPrice() {
 }
 getTotalPrice()
 
+
 //Change la quantité depuis l'input de la page panier
 function buttonChangeQuantityOnCartPage(){
     let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")) //Pour "sécuriser" le tableau car le "HTML" collection changeait
-    let cart = getCart()
     for (let btn of allButtonQuantity) {
             let productToChange = btn.closest(".cart__item")
             let productToChangeId = productToChange.dataset.id
             let productToChangeColor = productToChange.dataset.color
         
             btn.addEventListener('change', function(){
+                let cart = getCart()
                 let newQuantity = Number(btn.value)
                 let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor)
                 if (newQuantity <= 0 || newQuantity > 100){                   
@@ -198,30 +200,52 @@ window.addEventListener('load', (event) => {
     buttonDeleteItemOnCartPage()
   })
 
-               /******************GESTION DE LA COMMANDE*********************/
+
+
+                         /******************GESTION DE LA COMMANDE*********************/
+
+
+
+// Disparition du formulaire de commande si panier vide
+function toggleForm(){
+    let orderSection = document.querySelector(".cart__order")
+    let cart = getCart()
+    if (cart.length == 0){
+        orderSection.style.visibility = "hidden"
+    } else {
+        orderSection.style.visibility = "visible"
+    }
+}
+toggleForm()
+
+
 
 //je récupère mon formulaire dans une variable
 let form = document.querySelector(".cart__order__form");
 
+// ************************* firstName validation ****************************
 
-//je vérifie les données du formulaire Prénom
+//j'écoute la modification du formulaire Prénom
 form.firstName.addEventListener('change', function() {
     validFirstName(this);
 });
+
 //je crée la regex et son test pour informer l'utilisateur de la conformité du champ renseigné
 const validFirstName = function(inputFirsName) {
     let firstNameRegExp = new RegExp('^[A-Za-z\é\è\ê\-]+$');
-    let testFirstName = firstNameRegExp.test(inputFirsName.value)
-    console.log(testFirstName)
     let errorMessage = document.getElementById('firstNameErrorMsg')
-    if (testFirstName == false) {
+    if (firstNameRegExp.test(inputFirsName.value) == false) {
         errorMessage.innerText = "Champ invalide"
+        return false
     } else {
         errorMessage.innerText = ""
+        return true
     }
 }
 
-//je vérifie les données du formulaire Nom
+// ************************* lastName validation ****************************
+
+//j'écoute la modification du formulaire Nom
 form.lastName.addEventListener('change', function() {
     validLastName(this);
 });
@@ -229,16 +253,19 @@ form.lastName.addEventListener('change', function() {
 const validLastName = function(inputLastName) {
     let lastNameRegExp = new RegExp('^[A-Za-z\é\è\ê\-]+$');
     let testLastName = lastNameRegExp.test(inputLastName.value)
-    console.log(testLastName)
     let errorMessage = document.getElementById('lastNameErrorMsg')
     if (testLastName == false) {
         errorMessage.innerText = "Champ invalide"
+        return false
     } else {
         errorMessage.innerText = ""
+        return true
     }
 }
 
-//je vérifie les données du formulaire Adresse
+// ************************* Adresse validation ****************************
+
+//j'écoute la modification du formulaire Adresse
 form.address.addEventListener('change', function() {
     validAddress(this);
 });
@@ -246,46 +273,124 @@ form.address.addEventListener('change', function() {
 const validAddress = function(inputAddress) {
     let addressRegExp = /^[#.0-9a-zA-Z\s,-]+$/;
     let testAddress = addressRegExp.test(inputAddress.value)
-    console.log(testAddress)
     let errorMessage = document.getElementById('addressErrorMsg')
     if (testAddress == false) {
         errorMessage.innerText = "Champ invalide"
+        return false
     } else {
         errorMessage.innerText = ""
+        return true
     }
 }
 
-//je vérifie les données du formulaire Ville
+// ************************* ville validation ****************************
+
+//j'écoute la modification du formulaire Ville
 form.city.addEventListener('change', function() {
     validCity(this);
 });
+
 //je crée la regex et son test pour informer l'utilisateur de la conformité du champ renseigné
 const validCity = function(inputCity) {
     let cityRegExp = new RegExp('^[A-Za-z\é\è\ê\-]+$');
     let testCity = cityRegExp.test(inputCity.value)
-    console.log(testCity)
     let errorMessage = document.getElementById('cityErrorMsg')
     if (testCity == false) {
         errorMessage.innerText = "Champ invalide"
+        return false
     } else {
         errorMessage.innerText = ""
+        return true
     }
 }
 
-//je vérifie les données du formulaire Email
+// ************************* Email validation ****************************
+
+//j'écoute la modification du formulaire Email
 form.email.addEventListener('change', function() {
     validEmail(this);
 });
+
+
 //je crée la regex et son test pour informer l'utilisateur de la conformité du champ renseigné
 const validEmail = function(inputEmail) {
-    let emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    console.log(inputEmail.value)
+    let emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/;
     let testEmail = emailRegExp.test(inputEmail.value)
-    console.log(testEmail)
     let errorMessage = document.getElementById('emailErrorMsg')
     if (testEmail == false) {
         errorMessage.innerText = "Champ invalide"
+        return false
     } else {
         errorMessage.innerText = ""
+        return true
     }
 }
+
+// creation de l'objet contact
+class Contacts {
+    constructor(firstName, lastName, address, city, email){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address; 
+        this.city = city;
+        this.email = email;
+    }
+}
+//j'écoute la soumission du formulaire et j'enregistre les données du formulaire dans le local storage
+form.order.addEventListener('click', function(e) {
+     e.preventDefault()
+    if (validFirstName(form.firstName) && validLastName(form.lastName) && validAddress(form.address) && validCity(form.city) && validEmail(form.email)) {
+        let contact = new Contacts(form.firstName.value, form.lastName.value, form.address.value, form.city.value, form.email.value)
+        localStorage.setItem("contact", JSON.stringify(contact));
+        submit()
+    }
+});
+
+//je récupère les id de tous les produits du tableau
+function getCartProductIds(){
+    let cart = getCart()
+    let products = []
+    for (let i of cart){
+        products.push(i.id)
+    }
+    return products
+}
+
+//je récupère les données du formulaire sur le local storage
+function getFormData() {
+    let form = localStorage.getItem("contact");
+        return JSON.parse(form);
+} 
+
+// let order = {contact, products}
+
+function submit(){
+    let contact = getFormData()
+    let products = getCartProductIds()
+    console.log(products)
+    fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'  
+        },
+        body: JSON.stringify({contact, products})
+    })
+    .then(function(res) {
+        if (res.ok) {
+            let test = res.json();
+            console.log(test)
+            return test
+        } else {
+            console.log("response not ok")
+        }
+      })
+      .then(function(value){
+        document.location.href ="./confirmation.html?order=" + value.orderId;
+        localStorage.clear()
+    })
+    .catch(function(err) {
+        console.log(err);
+      });
+}
+
+
