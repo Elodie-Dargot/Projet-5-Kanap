@@ -1,3 +1,5 @@
+// import {addToCart} from './cart.js';
+
 //je récupère l'id de la page pour créer une nouvelle URL pour la requete API correspondant au produit visé
 let str = window.location.href;
 let url = new URL(str);

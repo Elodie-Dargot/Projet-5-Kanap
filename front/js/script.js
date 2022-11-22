@@ -10,6 +10,11 @@ function recoverProducts() {
     extractProducts(value)
   })
   .catch(function(err) {
+    alert("Une erreur est survenue, le serveur ne semble pas accessible")
+    /*let errorMessage = document.querySelector('.titles > h1')
+    errorMessage.innerText = "Une erreur est survenue, le serveur ne semble pas accessible"
+    let errorMessage2 = document.querySelector('.titles > h2')
+    errorMessage2.innerText = ""*/
   });
 }
 
