@@ -7,16 +7,12 @@ function recoverProducts() {
     }
   })
   .then(function(value) {
-    extractProducts(value)
+    extractProducts(value);
   })
   .catch(function(err) {
     alert("Une erreur est survenue, le serveur ne semble pas accessible")
-    /*let errorMessage = document.querySelector('.titles > h1')
-    errorMessage.innerText = "Une erreur est survenue, le serveur ne semble pas accessible"
-    let errorMessage2 = document.querySelector('.titles > h2')
-    errorMessage2.innerText = ""*/
   });
-}
+};
 
 //Je crée les cartes de chaque produit et les insèrent sur la page d'accueil 
 function extractProducts(products) {
@@ -31,6 +27,6 @@ function extractProducts(products) {
     </a>`;
   let productsSection = document.getElementById("items")
   productsSection.innerHTML += cardsProducts
-  }
+  };
 }
 recoverProducts()

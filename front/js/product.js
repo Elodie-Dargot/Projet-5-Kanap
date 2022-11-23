@@ -1,12 +1,9 @@
-// import {addToCart} from './cart.js';
-
 //je récupère l'id de la page pour créer une nouvelle URL pour la requete API correspondant au produit visé
 let str = window.location.href;
 let url = new URL(str);
 let id = url.searchParams.get("id");
 let base = "http://localhost:3000/api/products/";
 let newUrl = base + id;
-
 // je fais ma requête à l'API pour récupérer les détails du produit
 function recoverProduct(){
     fetch(newUrl)
@@ -15,75 +12,88 @@ function recoverProduct(){
                 return res.json();
             }
         })
-        .then(function(value){
-            insertElements(value);
+        .then(function(product){
+            insertElements(product);
         })
         .catch(function(err) {
             console.log(err);
           });
     }
-
 recoverProduct();
+
 //j'intègre les éléments recueillies dans ma page
+function insertElements(product){
+    insertProductImage(product.imageUrl, product.altTxt);
+    insertProduct("title", product.name);
+    insertProduct("price", product.price);
+    insertProduct("description", product.description);
+    insertProductColorChoices(product.colors)
+}
 
-function insertElements(products){
+function insertProductImage(imageUrl, altTxt) {
     let img = document.querySelector(".item__img");
-    img.innerHTML = `<img src=${products.imageUrl} alt=${products.altTxt}/>`;
-    
-    let name = document.getElementById("title");
-    name.textContent = products.name;
+    img.innerHTML = `<img src=${imageUrl} alt=${altTxt}/>`;
+}
 
-    let price = document.getElementById("price");
-    price.textContent = products.price;
+function insertProduct(fieldId, textContent) {
+    let field = document.getElementById(fieldId);
+    field.textContent = textContent;
+}
 
-    let description = document.getElementById("description");
-    description.textContent = products.description;
-
-    let colorChoice = document.getElementById("colors")
-    for (let i = 0; i < products.colors.length; i++) {
-        colorChoice.innerHTML += `<option value="${products.colors[i]}">${products.colors[i]}</option>`
+function insertProductColorChoices(colors) {
+    let colorChoice = document.getElementById("colors");
+    for (let i = 0; i < colors.length; i++) {
+        colorChoice.innerHTML += `<option value="${colors[i]}">${colors[i]}</option>`;
     }
 }
 
 //je récupère les valeurs couleurs et quantité
 function quantityValue(){
-   return Number(document.getElementById("quantity").value)
+   return Number(document.getElementById("quantity").value);
 };
 
 function colorValue(){
-    return document.getElementById('colors').value
+    return document.getElementById('colors').value;
 };
+
+
+function createAlertMessage(messageAlert){
+    alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>${messageAlert}</div>`);
+    deleteAlert();
+}
 
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
-let alertZone = document.querySelector('.item__content__addButton')
+let alertZone = document.querySelector('.item__content__addButton');
 buttonAddToCart.addEventListener('click', function() {
     if (quantityValue() == 0 && colorValue() == ""){
-        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une quantité et une couleur</div>`)
-        deleteAlert()
+        let messageAlert = "Vous devez choisir une quantité et une couleur"
+        createAlertMessage(messageAlert)
     } else if (quantityValue() == 0) {
-        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une quantité</div>`)
-        deleteAlert()
+        let messageAlert = "Vous devez choisir une quantité"
+        createAlertMessage(messageAlert)
     }
     else if (colorValue() == ""){
-        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Vous devez choisir une couleur</div>`)
-        deleteAlert()
+        let messageAlert = "Vous devez choisir une couleur"
+        createAlertMessage(messageAlert)
     } else if (quantityValue() <= 0 || quantityValue() > 100) {
-        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>La quantité doit être comprise entre 1 et 100</div>`)
-        deleteAlert()
+        let messageAlert = "La quantité doit être comprise entre 1 et 100"
+        createAlertMessage(messageAlert)
     }
     else {
-        addToCart(id, quantityValue(), colorValue())
-        alertZone.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold"><br>Produit ajouté au panier</div>`)
-        deleteAlert()
+        import('./cart.js').then(function(module){
+            module.addToCart(id, quantityValue(), colorValue())
+            let messageAlert = "Produit ajouté au panier"
+            createAlertMessage(messageAlert)
+        })
     }
 })
 
 function deleteAlert(){
-    let alert = document.getElementById("alert")
+    let alert = document.getElementById("alert");
     setTimeout(function(){
-        alert.remove()
-    }, 1500)
+        alert.remove();
+    }, 1500);
 }
 
 
