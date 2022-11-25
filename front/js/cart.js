@@ -6,30 +6,29 @@ addEventListener('DOMContentLoaded', (event) => {
         displayCart();
         getNumberProduct();
         getTotalPrice();
-        toggleForm();
         addEventsListeners();
     }
-});    
+});
     
 //ajoute les produits au panier
 export function addToCart(id, quantity, color){
     let cart = getCart();
     let product = {id, quantity, color};
-    if (searchForProductInCart(cart, product)){
+    if (isProductInCart(cart, product)){
         changeQuantity(product, quantity);
     } else {
-        cart.push({id, quantity, color});
+        cart.push(product);
         saveCart(cart);
     }
-};
+}
 
 //enregistre le panier sur localStorage
 function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
-};
+}
 
 //vérifie s'il existe déjà dans le panier un produit avec le meme id et la même couleur
-function searchForProductInCart(cart, product){
+function isProductInCart(cart, product){
     return cart.some((p) => p.id === product.id && p.color === product.color);
 }
 
@@ -41,7 +40,7 @@ function getCart() {
     } else {
         return JSON.parse(cart);
     }
-} 
+}
 
 //fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse de la requête pour le produit
 function getProduct(id){
@@ -50,54 +49,78 @@ function getProduct(id){
             if (res.ok) {
                 return res.json();
             }
-        })
+        });
 }
 
 //Afficher panier vide
-function emptyCart() {
-    let cart = getCart();
+function displayEmptyCart() {
     let title = document.querySelector("h1");
-    if (cart.length == 0){
-        title.innerText = "Votre panier est vide...";
-    }
+    title.innerText = "Votre panier est vide...";
+    toggleForm();
 }
 
 //affiche les produits du panier
 function displayCart() {
     let cart = getCart();
-    let cartSection = document.getElementById("cart__items");
-    emptyCart()
-    for (let i of cart){
-        getProduct(i.id)
-        .then(function(value){
-            let cartProduct = `
-            <article class="cart__item" data-id="${i.id}" data-color="${i.color}">
+    if (cart.length == 0){
+        displayEmptyCart();
+    } else {
+        addProductElementsToCartSection(cart).then(function() {
+            buttonChangeItemQuantityAddEventListeners();
+            buttonDeleteItemOnCartPageAddEventListeners();
+        });
+    }
+}
+
+function addProductElementsToCartSection(products){
+    let cartProductPromises =[];
+    for (let i of products){
+        cartProductPromises.push(getProduct(i.id)
+        .then(function(value) {
+            return {
+                id: i.id,
+                color: i.color,
+                imageUrl: value.imageUrl,
+                altTxt: value.altTxt,
+                name: value.name,
+                price: value.price,
+                quantity: i.quantity
+            }
+        })
+        .catch(function(err) {
+            console.log(err);
+        }));
+    }
+    return Promise.all(cartProductPromises)
+    .then(function(values) {
+        let cartSection = document.getElementById("cart__items");
+        let cartSectionHTML = ""
+        for (let value of values) {
+            cartSectionHTML += `
+            <article class="cart__item" data-id="${value.id}" data-color="${value.color}">
                 <div class="cart__item__img">
                     <img src=${value.imageUrl} alt=${value.altTxt}>
                 </div>
                 <div class="cart__item__content">
                     <div class="cart__item__content__description">
                         <h2>${value.name}</h2>
-                        <p>${i.color}</p>
+                        <p>${value.color}</p>
                         <p>${value.price}€</p>
                     </div>
                     <div class="cart__item__content__settings">
                         <div class="cart__item__content__settings__quantity">
                             <p>Qté :</p>
-                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${i.quantity}>
+                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${value.quantity}>
                         </div>
                         <div class="cart__item__content__settings__delete">
                             <p class="deleteItem">Supprimer</p>
                         </div>
                     </div>
                 </div>
-            </article>`
-            cartSection.innerHTML += cartProduct;
-        })
-        .catch(function(err) {
-            console.log(err);
-            })
-    }
+            </article>`;
+        }
+        cartSection.innerHTML = cartSectionHTML;
+    });
 }
 
 
@@ -154,7 +177,7 @@ function getTotalPrice() {
 
 
 //Change la quantité depuis l'input de la page panier
-function buttonChangeQuantityOnCartPage(){
+function buttonChangeItemQuantityAddEventListeners(){
     let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour "sécuriser" le tableau car le "HTML" collection changeait
     for (let btn of allButtonQuantity) {
             let productToChange = btn.closest(".cart__item");
@@ -186,30 +209,26 @@ function deleteAlert(){
 }
 
 //Supprime l'article au clic su le bouton correspondant
-function buttonDeleteItemOnCartPage(){
+function buttonDeleteItemOnCartPageAddEventListeners(){
     let allButtonDelete = Array.from(document.getElementsByClassName("deleteItem"));
-    let cart = getCart();
+    console.log(allButtonDelete)
     for (let btn of allButtonDelete) {
             let productToChange = btn.closest(".cart__item");
             let productToChangeId = productToChange.dataset.id;
             let productToChangeColor = productToChange.dataset.color;
             btn.addEventListener('click', function(){
+                let cart = getCart();
+                console.log("You clicked delete button for product ${productToChangeId}");
                 let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor);
                 cart = cart.filter(p=> p != foundProduct);
                 saveCart(cart);
                 getNumberProduct();
                 getTotalPrice();
                 productToChange.remove();
-                emptyCart();
-                toggleForm();
+                displayCart();
         })
     }
 }
-//pour appeler ma fonction une fois que toute la page est chargée sinon l'affichage des totaux ne fonctionnaient pas sans recharger la page à cause des promesses
-window.addEventListener('load', (event) => {
-    buttonChangeQuantityOnCartPage();
-    buttonDeleteItemOnCartPage();
-  })
 
                          /******************GESTION DE LA COMMANDE*********************/
 
