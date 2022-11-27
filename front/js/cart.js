@@ -1,10 +1,11 @@
             /******************GESTION DES ARTICLES DU PANIER*********************/
+
 //appel les fonction uniquement si l'on est sur la page panier sinon elles sont prises en compte lors de l'import de la fonction addToCart
 addEventListener('DOMContentLoaded', (event) => {
     let str = window.location.href;
     if (str.endsWith('cart.html')) {
         displayCart();
-        getNumberProduct();
+        getNumberOfProducts();
         getTotalPrice();
         addEventsListeners();
     }
@@ -15,7 +16,7 @@ export function addToCart(id, quantity, color){
     let cart = getCart();
     let product = {id, quantity, color};
     if (isProductInCart(cart, product)){
-        changeQuantity(product, quantity);
+        changeProductQuantity(product, quantity);
     } else {
         cart.push(product);
         saveCart(cart);
@@ -42,24 +43,14 @@ function getCart() {
     }
 }
 
-//fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse de la requête pour le produit
-function getProduct(id){
-    return fetch("http://localhost:3000/api/products/" + id)
-        .then(function(res) {
-            if (res.ok) {
-                return res.json();
-            }
-        });
-}
-
-//Afficher panier vide
+//Affiche un message quand le panier est vide 
 function displayEmptyCart() {
     let title = document.querySelector("h1");
     title.innerText = "Votre panier est vide...";
-    toggleForm();
+    displayForm();
 }
 
-//affiche les produits du panier
+//affiche le panier vide ou les produits du panier et appel les listeners 
 function displayCart() {
     let cart = getCart();
     if (cart.length == 0){
@@ -72,6 +63,17 @@ function displayCart() {
     }
 }
 
+//fonction qui prend en argument l'id du produit que l'on veut récupérer et retourne une promesse de la requête pour le produit
+function getProduct(id){
+    return fetch("http://localhost:3000/api/products/" + id)
+        .then(function(res) {
+            if (res.ok) {
+                return res.json();
+            }
+        });
+}
+
+//Récupère les informations de chaque produit dans le panier et les affiche
 function addProductElementsToCartSection(products){
     let cartProductPromises =[];
     for (let i of products){
@@ -125,13 +127,13 @@ function addProductElementsToCartSection(products){
 
 
 //pour changer la quantité depuis la page produit
-function changeQuantity(product, quantity) {
+function changeProductQuantity(product, quantity) {
     let cart = getCart();
     let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
     if (foundProduct != undefined) {
         foundProduct.quantity += quantity;
        if (foundProduct.quantity <= 0){
-            removeFromCart(foundProduct);
+            removeProductFromCart(foundProduct);
         } else {
             saveCart(cart);
         }   
@@ -139,14 +141,14 @@ function changeQuantity(product, quantity) {
 }
 
 //supprime du panier
-function removeFromCart(product) {
+function removeProductFromCart(product) {
     let cart = getCart();
     cart = cart.filter(p=> p.id != product.id);
     saveCart(cart);
 }
 
 //calcul le nombre d'articles dans le panier et affiche le total
-function getNumberProduct() {
+function getNumberOfProducts() {
     let cart = getCart();
     let number = 0;
     for (let product of cart) {
@@ -178,7 +180,7 @@ function getTotalPrice() {
 
 //Change la quantité depuis l'input de la page panier
 function buttonChangeItemQuantityAddEventListeners(){
-    let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour "sécuriser" le tableau car le "HTML" collection changeait
+    let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour "sécuriser" le tableau car le "HTML collection" changeait
     for (let btn of allButtonQuantity) {
             let productToChange = btn.closest(".cart__item");
             let productToChangeId = productToChange.dataset.id;
@@ -193,14 +195,14 @@ function buttonChangeItemQuantityAddEventListeners(){
                 } else {
                     foundProduct.quantity = newQuantity;
                     saveCart(cart);
-                    getNumberProduct();
+                    getNumberOfProducts();
                     getTotalPrice();
                 }
         })
     }
 }
 
-//Fais disparaitre le message d'alerte dès qu'une quantité adéquate est renseignée
+//Fais disparaitre le message d'alerte 
 function deleteAlert(){
     let alert = document.getElementById("alert");
     setTimeout(function(){
@@ -211,18 +213,16 @@ function deleteAlert(){
 //Supprime l'article au clic su le bouton correspondant
 function buttonDeleteItemOnCartPageAddEventListeners(){
     let allButtonDelete = Array.from(document.getElementsByClassName("deleteItem"));
-    console.log(allButtonDelete)
     for (let btn of allButtonDelete) {
             let productToChange = btn.closest(".cart__item");
             let productToChangeId = productToChange.dataset.id;
             let productToChangeColor = productToChange.dataset.color;
             btn.addEventListener('click', function(){
                 let cart = getCart();
-                console.log("You clicked delete button for product ${productToChangeId}");
                 let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor);
                 cart = cart.filter(p=> p != foundProduct);
                 saveCart(cart);
-                getNumberProduct();
+                getNumberOfProducts();
                 getTotalPrice();
                 productToChange.remove();
                 displayCart();
@@ -235,7 +235,7 @@ function buttonDeleteItemOnCartPageAddEventListeners(){
 
 
 // Disparition du formulaire de commande si panier vide
-function toggleForm(){
+function displayForm(){
     let orderSection = document.querySelector(".cart__order");
     let cart = getCart();
     if (cart.length == 0){
@@ -245,12 +245,7 @@ function toggleForm(){
     }
 }
 
-
-
-//je récupère mon formulaire dans une variable
-let form = document.querySelector(".cart__order__form");
-
-// je créée le regex pour le type d'input et retourne le resultat de test
+// je crée le regex pour le type d'input et retourne le resultat de test
 function validateInput(inputText, inputType = "") {
     let regex;
     switch(inputType) {
@@ -279,6 +274,10 @@ function getInputValidationMessage(inputText, inputType) {
     }
 }
 
+//je récupère mon formulaire dans une variable
+let form = document.querySelector(".cart__order__form");
+
+//je regroupe les listeners du formulaire dans une seule fonction
 function addEventsListeners(){
     //j'écoute la modification du formulaire Prénom
     form.firstName.addEventListener('change', function() {
@@ -317,7 +316,7 @@ function addEventsListeners(){
     if (validateInput(form.firstName.value) && validateInput(form.lastName.value) && validateInput(form.address.value, "address") && validateInput(form.city.value) && validateInput(form.email.value, "email")) {
         let contact = new Contacts(form.firstName.value, form.lastName.value, form.address.value, form.city.value, form.email.value);
         localStorage.setItem("contact", JSON.stringify(contact));
-        submit();
+        submitOrder();
     } else {
         let errorMessageField = document.querySelector(".cart__order__form__submit")
         errorMessageField.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Merci de remplir tous les champs du formulaire</div>`);
@@ -339,7 +338,7 @@ class Contacts {
 
 
 //je récupère les id de tous les produits du tableau
-function getCartProductIds(){
+function getCartProductsIds(){
     let cart = getCart();
     let products = [];
     for (let i of cart){
@@ -354,10 +353,10 @@ function getFormData() {
         return JSON.parse(form);
 } 
 
-//j'envoi ma requête à l'API
-function submit(){
+//j'envoi ma requête à l'API et recupère le numéro de commande pour rediriger vers la page confirmation
+function submitOrder(){
     let contact = getFormData();
-    let products = getCartProductIds();
+    let products = getCartProductsIds();
     fetch("http://localhost:3000/api/products/order", {
         method: "POST",
         headers: {
