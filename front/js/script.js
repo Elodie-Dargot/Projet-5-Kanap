@@ -7,15 +7,16 @@ function recoverProducts() {
     }
   })
   .then(function(value) {
-    extractProducts(value);
+    displayProducts(value);
   })
-  .catch(function(err) {
+  .catch(function() {
     alert("Une erreur est survenue, le serveur ne semble pas accessible")
   });
 };
+recoverProducts()
 
 //Je crée les cartes de chaque produit et les insèrent sur la page d'accueil 
-function extractProducts(products) {
+function displayProducts(products) {
   for (let i in products){
     let cardsProducts = `
     <a href="./product.html?id=${products[i]._id}">
@@ -29,4 +30,4 @@ function extractProducts(products) {
   productsSection.innerHTML += cardsProducts
   };
 }
-recoverProducts()
+

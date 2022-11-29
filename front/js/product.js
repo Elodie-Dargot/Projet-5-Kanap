@@ -62,6 +62,13 @@ function createAlertMessage(messageAlert){
     deleteAlert();
 }
 
+function deleteAlert(){
+    let alert = document.getElementById("alert");
+    setTimeout(function(){
+        alert.remove();
+    }, 1500);
+}
+
 //j'enregistre les valeur dans le panier au clic
 let buttonAddToCart = document.getElementById("addToCart");
 let alertZone = document.querySelector('.item__content__addButton');
@@ -81,7 +88,7 @@ buttonAddToCart.addEventListener('click', function() {
         createAlertMessage(messageAlert)
     }
     else {
-        import('./cart.js').then(function(module){
+        import('./cart.js').then(function(module){//les instruction import/export seules ne fonctionnaient pas sans modifier l'HTML
             module.addToCart(id, quantityValue(), colorValue())
             let messageAlert = "Produit ajouté au panier"
             createAlertMessage(messageAlert)
@@ -89,12 +96,7 @@ buttonAddToCart.addEventListener('click', function() {
     }
 })
 
-function deleteAlert(){
-    let alert = document.getElementById("alert");
-    setTimeout(function(){
-        alert.remove();
-    }, 1500);
-}
+
 
 
 

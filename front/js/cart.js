@@ -23,14 +23,25 @@ export function addToCart(id, quantity, color){
     }
 }
 
-//enregistre le panier sur localStorage
-function saveCart(cart) {
-    localStorage.setItem("cart", JSON.stringify(cart));
-}
-
 //vérifie s'il existe déjà dans le panier un produit avec le meme id et la même couleur
 function isProductInCart(cart, product){
     return cart.some((p) => p.id === product.id && p.color === product.color);
+}
+
+//pour changer la quantité depuis la page produit
+function changeProductQuantity(product, quantity) {
+    let cart = getCart();
+    let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
+    if (foundProduct != undefined) {
+        foundProduct.quantity += quantity;
+    } else {
+        saveCart(cart);
+    }   
+}
+
+//enregistre le panier sur localStorage
+function saveCart(cart) {
+    localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 //Je récupère les produits du panier
@@ -73,7 +84,7 @@ function getProduct(id){
         });
 }
 
-//Récupère les informations de chaque produit dans le panier et les affiche
+//Récupère les informations de chaque produit dans le panier et les affichent
 function addProductElementsToCartSection(products){
     let cartProductPromises =[];
     for (let i of products){
@@ -93,11 +104,11 @@ function addProductElementsToCartSection(products){
             console.log(err);
         }));
     }
-    return Promise.all(cartProductPromises)
+    return Promise.all(cartProductPromises)// je récupère les résultats de toutes les promesses
     .then(function(values) {
         let cartSection = document.getElementById("cart__items");
         let cartSectionHTML = ""
-        for (let value of values) {
+        for (let value of values) {//j'insère les informations
             cartSectionHTML += `
             <article class="cart__item" data-id="${value.id}" data-color="${value.color}">
                 <div class="cart__item__img">
@@ -121,30 +132,8 @@ function addProductElementsToCartSection(products){
                 </div>
             </article>`;
         }
-        cartSection.innerHTML = cartSectionHTML;
+        cartSection.innerHTML = cartSectionHTML;//et je les affichent
     });
-}
-
-
-//pour changer la quantité depuis la page produit
-function changeProductQuantity(product, quantity) {
-    let cart = getCart();
-    let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
-    if (foundProduct != undefined) {
-        foundProduct.quantity += quantity;
-       if (foundProduct.quantity <= 0){
-            removeProductFromCart(foundProduct);
-        } else {
-            saveCart(cart);
-        }   
-    } 
-}
-
-//supprime du panier
-function removeProductFromCart(product) {
-    let cart = getCart();
-    cart = cart.filter(p=> p.id != product.id);
-    saveCart(cart);
 }
 
 //calcul le nombre d'articles dans le panier et affiche le total
@@ -180,7 +169,7 @@ function getTotalPrice() {
 
 //Change la quantité depuis l'input de la page panier
 function buttonChangeItemQuantityAddEventListeners(){
-    let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour "sécuriser" le tableau car le "HTML collection" changeait
+    let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour éviter que le "HTML collection" change pendant que l'on est entrain de l'utiliser
     for (let btn of allButtonQuantity) {
             let productToChange = btn.closest(".cart__item");
             let productToChangeId = productToChange.dataset.id;
