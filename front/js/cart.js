@@ -19,6 +19,8 @@ export function addToCart(id, quantity, color){
         changeProductQuantity(product, quantity);
     } else {
         cart.push(product);
+        let messageAlert = "Produit ajouté au panier"
+        createAlertMessage(messageAlert)
         saveCart(cart);
     }
 }
@@ -28,16 +30,34 @@ function isProductInCart(cart, product){
     return cart.some((p) => p.id === product.id && p.color === product.color);
 }
 
+
 //pour changer la quantité depuis la page produit
 function changeProductQuantity(product, quantity) {
     let cart = getCart();
     let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
     if (foundProduct != undefined) {
         foundProduct.quantity += quantity;
-    } else {
-        saveCart(cart);
-    }   
+        if (foundProduct.quantity <= 0){
+            removeProductFromCart(foundProduct);
+        } if (foundProduct.quantity >= 101){
+            removeProductFromCart(foundProduct);
+            let messageAlert = "La quantité doit être comprise entre 1 et 100"
+            createAlertMessage(messageAlert)
+        }else {
+            let messageAlert = "Produit ajouté au panier"
+            createAlertMessage(messageAlert)
+            saveCart(cart);
+            saveCart(cart);
+        }   
+    } 
 }
+    
+    //supprime du panier
+    function removeProductFromCart(product) {
+        let cart = getCart();
+        cart = cart.filter(p=> p != product);
+        saveCart(cart);
+    }
 
 //enregistre le panier sur localStorage
 function saveCart(cart) {
@@ -250,6 +270,7 @@ function validateInput(inputText, inputType = "") {
         default:
             regex = new RegExp('^(([A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]\'[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]*)|(-[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]{2,}|[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]{2,}-)|([A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]*\s?))*$');
     }
+    console.log(regex)
     return regex.test(inputText);
 }
 

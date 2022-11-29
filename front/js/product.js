@@ -86,12 +86,9 @@ buttonAddToCart.addEventListener('click', function() {
     } else if (quantityValue() <= 0 || quantityValue() > 100) {
         let messageAlert = "La quantité doit être comprise entre 1 et 100"
         createAlertMessage(messageAlert)
-    }
-    else {
+    } else {
         import('./cart.js').then(function(module){//les instruction import/export seules ne fonctionnaient pas sans modifier l'HTML
             module.addToCart(id, quantityValue(), colorValue())
-            let messageAlert = "Produit ajouté au panier"
-            createAlertMessage(messageAlert)
         })
     }
 })
