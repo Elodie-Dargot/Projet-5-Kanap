@@ -45,7 +45,6 @@ function changeProductQuantity(product, quantity) {
             let messageAlert = "Produit ajouté au panier";
             createAlertMessage(messageAlert);
             saveCart(cart);
-            saveCart(cart);
         }   
     } 
 }
@@ -217,7 +216,7 @@ function deleteAlert(){
     }, 1500);
 }
 
-//Supprime l'article au clic su le bouton correspondant
+//Supprime l'article au clic sur le bouton correspondant
 function buttonDeleteItemOnCartPageAddEventListeners(){
     let allButtonDelete = Array.from(document.getElementsByClassName("deleteItem"));
     for (let btn of allButtonDelete) {
