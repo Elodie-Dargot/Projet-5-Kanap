@@ -9,7 +9,7 @@ addEventListener('DOMContentLoaded', (event) => {
         getTotalPrice();
         addEventsListeners();
     }
-});
+})
     
 //ajoute les produits au panier
 export function addToCart(id, quantity, color){
@@ -19,8 +19,8 @@ export function addToCart(id, quantity, color){
         changeProductQuantity(product, quantity);
     } else {
         cart.push(product);
-        let messageAlert = "Produit ajouté au panier"
-        createAlertMessage(messageAlert)
+        let messageAlert = "Produit ajouté au panier";
+        createAlertMessage(messageAlert);
         saveCart(cart);
     }
 }
@@ -37,15 +37,13 @@ function changeProductQuantity(product, quantity) {
     let foundProduct = cart.find(p => p.id == product.id && p.color == product.color);
     if (foundProduct != undefined) {
         foundProduct.quantity += quantity;
-        if (foundProduct.quantity <= 0){
+        if (foundProduct.quantity <= 0 || foundProduct.quantity >= 101){
             removeProductFromCart(foundProduct);
-        } if (foundProduct.quantity >= 101){
-            removeProductFromCart(foundProduct);
-            let messageAlert = "La quantité doit être comprise entre 1 et 100"
-            createAlertMessage(messageAlert)
+            let messageAlert = "La quantité totale de produits doit être comprise entre 1 et 100";
+            createAlertMessage(messageAlert);
         }else {
-            let messageAlert = "Produit ajouté au panier"
-            createAlertMessage(messageAlert)
+            let messageAlert = "Produit ajouté au panier";
+            createAlertMessage(messageAlert);
             saveCart(cart);
             saveCart(cart);
         }   
@@ -90,7 +88,7 @@ function displayCart() {
         addProductElementsToCartSection(cart).then(function() {
             buttonChangeItemQuantityAddEventListeners();
             buttonDeleteItemOnCartPageAddEventListeners();
-        });
+        })
     }
 }
 
@@ -122,12 +120,12 @@ function addProductElementsToCartSection(products){
         })
         .catch(function(err) {
             console.log(err);
-        }));
+        }))
     }
     return Promise.all(cartProductPromises)// je récupère les résultats de toutes les promesses
     .then(function(values) {
         let cartSection = document.getElementById("cart__items");
-        let cartSectionHTML = ""
+        let cartSectionHTML = "";
         for (let value of values) {//j'insère les informations
             cartSectionHTML += `
             <article class="cart__item" data-id="${value.id}" data-color="${value.color}">
@@ -153,7 +151,7 @@ function addProductElementsToCartSection(products){
             </article>`;
         }
         cartSection.innerHTML = cartSectionHTML;//et je les affichent
-    });
+    })
 }
 
 //calcul le nombre d'articles dans le panier et affiche le total
@@ -163,7 +161,7 @@ function getNumberOfProducts() {
     for (let product of cart) {
         number += product.quantity;
     }
-    let totalProducts = document.getElementById("totalQuantity")
+    let totalProducts = document.getElementById("totalQuantity");
     totalProducts.innerText = number;
 }
 
@@ -191,22 +189,22 @@ function getTotalPrice() {
 function buttonChangeItemQuantityAddEventListeners(){
     let allButtonQuantity = Array.from(document.getElementsByClassName("itemQuantity")); //Pour éviter que le "HTML collection" change pendant que l'on est entrain de l'utiliser
     for (let btn of allButtonQuantity) {
-            let productToChange = btn.closest(".cart__item");
-            let productToChangeId = productToChange.dataset.id;
-            let productToChangeColor = productToChange.dataset.color;
-            btn.addEventListener('change', function(){
-                let cart = getCart();
-                let newQuantity = Number(btn.value);
-                let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor);
-                if (newQuantity <= 0 || newQuantity > 100){                   
-                    btn.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327">&nbsp;La quantité doit être comprise entre 1 et 100</div>`);
-                    deleteAlert();
-                } else {
-                    foundProduct.quantity = newQuantity;
-                    saveCart(cart);
-                    getNumberOfProducts();
-                    getTotalPrice();
-                }
+        let productToChange = btn.closest(".cart__item");
+        let productToChangeId = productToChange.dataset.id;
+        let productToChangeColor = productToChange.dataset.color;
+        btn.addEventListener('change', function(){
+            let cart = getCart();
+            let newQuantity = Number(btn.value);
+            let foundProduct = cart.find(p => p.id == productToChangeId && p.color == productToChangeColor);
+            if (newQuantity <= 0 || newQuantity > 100){                   
+                btn.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327">&nbsp;La quantité doit être comprise entre 1 et 100</div>`);
+                deleteAlert();
+            } else {
+                foundProduct.quantity = newQuantity;
+                saveCart(cart);
+                getNumberOfProducts();
+                getTotalPrice();
+            }
         })
     }
 }
@@ -270,7 +268,6 @@ function validateInput(inputText, inputType = "") {
         default:
             regex = new RegExp('^(([A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]\'[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]*)|(-[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]{2,}|[A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]{2,}-)|([A-Za-zÀ-ÖÙ-íñ-öù-ýîÎïÏ]*\s?))*$');
     }
-    console.log(regex)
     return regex.test(inputText);
 }
 
@@ -299,26 +296,26 @@ function addEventsListeners(){
     form.lastName.addEventListener('change', function() {
         let errorMessage = document.getElementById('lastNameErrorMsg');
         errorMessage.innerText = getInputValidationMessage(this.value, "lastName");
-    });
+    })
 
     //j'écoute la modification du formulaire Adresse
     form.address.addEventListener('change', function() {
         let errorMessage = document.getElementById('addressErrorMsg');
         errorMessage.innerText = getInputValidationMessage(this.value, "address");
-    });
+    })
 
 
     //j'écoute la modification du formulaire Ville
     form.city.addEventListener('change', function() {
         let errorMessage = document.getElementById('cityErrorMsg');
         errorMessage.innerText = getInputValidationMessage(this.value, "city");
-    });
+    })
 
     //j'écoute la modification du formulaire Email
     form.email.addEventListener('change', function() {
         let errorMessage = document.getElementById('emailErrorMsg');
         errorMessage.innerText = getInputValidationMessage(this.value, "email");
-    });
+    })
 
     //j'écoute la soumission du formulaire et j'enregistre les données du formulaire dans le local storage
     form.order.addEventListener('click', function(e) {
@@ -332,7 +329,7 @@ function addEventsListeners(){
         errorMessageField.insertAdjacentHTML('afterend', `<div id = "alert" style= "text-align: center; font-weight: bold; color: #af3327"><br>Merci de remplir tous les champs du formulaire</div>`);
         deleteAlert();
     }
-    });
+    })
 }
 
 // creation de l'objet contact

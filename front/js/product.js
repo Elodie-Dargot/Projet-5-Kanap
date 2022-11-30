@@ -17,7 +17,7 @@ function recoverProduct(){
         })
         .catch(function(err) {
             console.log(err);
-          });
+          })
     }
 recoverProduct();
 
@@ -27,7 +27,7 @@ function insertElements(product){
     insertProduct("title", product.name);
     insertProduct("price", product.price);
     insertProduct("description", product.description);
-    insertProductColorChoices(product.colors)
+    insertProductColorChoices(product.colors);
 }
 
 function insertProductImage(imageUrl, altTxt) {
@@ -50,11 +50,11 @@ function insertProductColorChoices(colors) {
 //je récupère les valeurs couleurs et quantité
 function quantityValue(){
    return Number(document.getElementById("quantity").value);
-};
+}
 
 function colorValue(){
     return document.getElementById('colors').value;
-};
+}
 
 
 function createAlertMessage(messageAlert){
@@ -74,21 +74,21 @@ let buttonAddToCart = document.getElementById("addToCart");
 let alertZone = document.querySelector('.item__content__addButton');
 buttonAddToCart.addEventListener('click', function() {
     if (quantityValue() == 0 && colorValue() == ""){
-        let messageAlert = "Vous devez choisir une quantité et une couleur"
-        createAlertMessage(messageAlert)
+        let messageAlert = "Vous devez choisir une quantité et une couleur";
+        createAlertMessage(messageAlert);
     } else if (quantityValue() == 0) {
-        let messageAlert = "Vous devez choisir une quantité"
-        createAlertMessage(messageAlert)
+        let messageAlert = "Vous devez choisir une quantité";
+        createAlertMessage(messageAlert);
     }
     else if (colorValue() == ""){
-        let messageAlert = "Vous devez choisir une couleur"
-        createAlertMessage(messageAlert)
+        let messageAlert = "Vous devez choisir une couleur";
+        createAlertMessage(messageAlert);
     } else if (quantityValue() <= 0 || quantityValue() > 100) {
-        let messageAlert = "La quantité doit être comprise entre 1 et 100"
-        createAlertMessage(messageAlert)
+        let messageAlert = "La quantité doit être comprise entre 1 et 100";
+        createAlertMessage(messageAlert);
     } else {
         import('./cart.js').then(function(module){//les instruction import/export seules ne fonctionnaient pas sans modifier l'HTML
-            module.addToCart(id, quantityValue(), colorValue())
+            module.addToCart(id, quantityValue(), colorValue());
         })
     }
 })

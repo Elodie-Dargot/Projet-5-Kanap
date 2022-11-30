@@ -10,10 +10,10 @@ function recoverProducts() {
     displayProducts(value);
   })
   .catch(function() {
-    alert("Une erreur est survenue, le serveur ne semble pas accessible")
-  });
-};
-recoverProducts()
+    alert("Une erreur est survenue, le serveur ne semble pas accessible");
+  })
+}
+recoverProducts();
 
 //Je crée les cartes de chaque produit et les insèrent sur la page d'accueil 
 function displayProducts(products) {
@@ -26,8 +26,8 @@ function displayProducts(products) {
         <p class="productDescription">${products[i].description}</p>
       </article>
     </a>`;
-  let productsSection = document.getElementById("items")
-  productsSection.innerHTML += cardsProducts
-  };
+  let productsSection = document.getElementById("items");
+  productsSection.innerHTML += cardsProducts;
+  }
 }
 
